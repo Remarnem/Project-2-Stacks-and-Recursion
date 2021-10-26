@@ -64,6 +64,10 @@ bool PostfixStack::pop() {
 
 // Returns the value of the top element of the stack without popping/removing it.
 std::string PostfixStack::top() {
+    // Check if stack is empty
+    if (size == 0) {
+        return "NULL"; // Function must return something
+    }
     return stack[size - 1];
 }
 
@@ -81,24 +85,37 @@ double PostfixStack::evaluate() {
     // Get the operator to perform
     char operation = top()[0]; // Gets the first character of the top string
     pop();
+
     // Check if the second operand needs a recursive call
     double operand2;
     // Check if next argument is operation
     if (top() == "*" || top() == "/" || top() == "+" || top() == "-") {
         operand2 = evaluate();
     } else { // Isn't operation
-        operand2 = std::stod(top());
-        pop();
+        try { // Check if top() is a double
+            operand2 = std::stod(top());
+            pop();
+        } catch (std::invalid_argument &e1) { // top() isn't a double
+            std::cout << "[ERROR]: top() \"" << top() << "\" can't be parsed by stod(), returning -1" << std::endl;
+            return -1;
+        }
     }
+
     // Check if the first operand needs a recursive call
     double operand1;
     // Check if next argument is operation
     if (top() == "*" || top() == "/" || top() == "+" || top() == "-") {
         operand1 = evaluate();
     } else { // Isn't operation
-        operand1 = std::stod(top());
-        pop();
+        try { // Check if top() is a double
+            operand1 = std::stod(top());
+            pop();
+        } catch (std::invalid_argument &e1) { // top() isn't a double
+            std::cout << "[ERROR]: top() \"" << top() << "\" can't be parsed by stod(), returning -1" << std::endl;
+            return -1;
+        }
     }
+
     // Switch to perform proper operation and return the value
     switch (operation) {
         case '*':
@@ -114,8 +131,15 @@ double PostfixStack::evaluate() {
             return operand1 - operand2;
             break;
         default: // In case operation isn't what's expected
-            std::cout << "Something went wrong determining what the operator is." << std::endl;
-            std::cout << "Passed: '" << operation << "' Expected: '*', '/', '+', or '-'" << std::endl;
+            std::cout << "[ERROR]: Something went wrong determining what the operator is." << std::endl;
+            std::cout << "[ERROR]: Passed '" << operation << "' Expected: '*', '/', '+', or '-'" << std::endl;
     }
     return -1; // Error occurred
+}
+
+// Removes all elements in the stack
+void PostfixStack::emptyStack() {
+    delete stack;
+    stack = new std::string[capacity];
+    size = 0;
 }

@@ -22,6 +22,7 @@ public:
     std::string top();
     size_t getSize() const;
     double evaluate();
+    void emptyStack();
 };
 
 
